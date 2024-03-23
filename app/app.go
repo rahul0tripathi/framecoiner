@@ -10,7 +10,9 @@ import (
 	"github.com/rahul0tripathi/framecoiner/config"
 	"github.com/rahul0tripathi/framecoiner/controller"
 	"github.com/rahul0tripathi/framecoiner/pkg/log"
+	"github.com/rahul0tripathi/framecoiner/pkg/redis"
 	"github.com/rahul0tripathi/framecoiner/pkg/server"
+	"github.com/rahul0tripathi/framecoiner/services"
 	"go.uber.org/zap"
 )
 
@@ -30,7 +32,16 @@ func Run() error {
 	}
 
 	httpserver := server.New(cfg.HostPort, logger)
-	controller.SetupRouter(httpserver.Router())
+
+	storage, _ := redis.NewRedisDB(redis.RedisConfig{
+		Addr:     cfg.RedisAddr,
+		UserName: cfg.RedisUserName,
+		Password: cfg.RedisPassword,
+	})
+
+	accountsSvc := services.NewAccountService(storage)
+
+	controller.SetupRouter(accountsSvc, httpserver.Router())
 
 	httpserver.Start()
 
