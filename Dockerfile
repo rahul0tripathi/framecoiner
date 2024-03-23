@@ -1,4 +1,5 @@
 FROM golang:1.22-alpine AS builder
+ARG CACHEBUST=1
 
 # Install git + SSL ca certificates.
 # Git is required for fetching the dependencies.
