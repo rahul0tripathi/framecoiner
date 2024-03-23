@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -31,7 +32,7 @@ func loadEnvConfig(cfg any, options ...Option) error {
 		option(defaultCfg)
 	}
 
-	if err := godotenv.Overload(defaultCfg.envFilePath); err != nil {
+	if err := godotenv.Overload(defaultCfg.envFilePath); os.Getenv("ENV") == "" && err != nil {
 		return fmt.Errorf("failed to read env file, %w", err)
 	}
 
