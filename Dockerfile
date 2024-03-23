@@ -32,10 +32,10 @@ COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/group /etc/group
 
 # Copy our static executable
-COPY --from=builder /go/src/_bin/framecoinder /go/bin/framecoinder
+COPY --from=builder /go/src/_bin/framecoiner /go/bin/framecoiner
 
 # Use an unprivileged user.
 USER appuser:appuser
 
 EXPOSE 8000
-ENTRYPOINT ["/go/bin/framecoinder"]
+ENTRYPOINT ["/go/bin/framecoiner"]
