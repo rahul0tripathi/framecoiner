@@ -2,32 +2,50 @@ package services
 
 import (
 	"context"
-	"errors"
-	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/rahul0tripathi/framecoiner/entity"
 )
 
 type AccountService struct {
-	storage Storage
+	keyManager keyManager
+	processor  tradeProcessor
+	repo       tradesRepo
 }
 
-func NewAccountService(storage Storage) *AccountService {
+func NewAccountService(manager keyManager, repo tradesRepo, processor tradeProcessor) *AccountService {
 	return &AccountService{
-		storage: storage,
+		keyManager: manager,
+		repo:       repo,
+		processor:  processor,
 	}
 }
 
 func (a *AccountService) GetTradingAccount(ctx context.Context, address common.Address) (string, error) {
-	account, err := a.storage.Read(ctx, fmt.Sprintf("ACCOUNT:%s", address.Hex()))
-	switch {
-	case err == nil:
-	case errors.Is(err, entity.ErrEmpty):
-		return "", entity.ErrNoAccountFound
-	case err != nil:
+	account, err := a.keyManager.SigningAddress(ctx, address)
+	if err != nil {
 		return "", err
 	}
 
-	return account, nil
+	return account.Hex(), nil
+}
+
+func (a *AccountService) PlaceTradeRequest(
+	ctx context.Context,
+	address common.Address,
+	tokenAddress common.Address,
+	ethIn string,
+) error {
+	return a.processor.Submit(ctx, &entity.TradeRequest{
+		Owner:   address.Hex(),
+		EthIn:   ethIn,
+		ToToken: tokenAddress.Hex(),
+	})
+}
+
+func (a *AccountService) LatestTrade(
+	ctx context.Context,
+	address common.Address,
+) (*entity.Trade, error) {
+	return a.repo.LatestTrade(ctx, address)
 }
