@@ -7,6 +7,9 @@ type Config struct {
 	RedisAddr     string `json:"redisAddr" envconfig:"REDIS_ADDR"`
 	RedisUserName string `json:"redisUserName" envconfig:"REDIS_USERNAME"`
 	RedisPassword string `json:"redisPassword" envconfig:"REDIS_PASSWORD"`
+	ZeroXApiKey   string `json:"zeroXApiKey" envconfig:"ZEROX_KEY"`
+	RpcURL        string `json:"rpcURL" envconfig:"RPC_URL"`
+	ChainID       string `json:"chainID" envconfig:"CHAIN_ID"`
 }
 
 func NewConfigFromEnv() (*Config, error) {
