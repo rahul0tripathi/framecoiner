@@ -23,3 +23,7 @@ type AccountService interface {
 		address common.Address,
 	) (*entity.Trade, error)
 }
+
+type TokenMetadataService interface {
+	GetTokenMetadata(ctx context.Context, token common.Address) (*entity.TokenMetadata, error)
+}

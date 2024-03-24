@@ -63,10 +63,14 @@ func Run() error {
 	}
 
 	accountsSvc := services.NewAccountService(manager, tradesRepo, processor, chainBackend)
+	metadataSvc := services.NewTokenMetadataService(chainBackend, integrations.ZeroXConfig{
+		ApiKey:  cfg.ZeroXApiKey,
+		ChainID: cfg.ChainID,
+	})
 
 	processor.Run(ctx, 3)
 
-	controller.SetupRouter(accountsSvc, httpserver.Router())
+	controller.SetupRouter(accountsSvc, metadataSvc, httpserver.Router())
 
 	httpserver.Start()
 
