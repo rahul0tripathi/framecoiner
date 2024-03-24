@@ -7,11 +7,14 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/rahul0tripathi/framecoiner/config"
 	"github.com/rahul0tripathi/framecoiner/controller"
+	"github.com/rahul0tripathi/framecoiner/integrations"
 	"github.com/rahul0tripathi/framecoiner/pkg/log"
 	"github.com/rahul0tripathi/framecoiner/pkg/redis"
 	"github.com/rahul0tripathi/framecoiner/pkg/server"
+	"github.com/rahul0tripathi/framecoiner/repo"
 	"github.com/rahul0tripathi/framecoiner/services"
 	"go.uber.org/zap"
 )
@@ -39,7 +42,29 @@ func Run() error {
 		Password: cfg.RedisPassword,
 	})
 
-	accountsSvc := services.NewAccountService(storage)
+	tradesRepo := repo.NewTradesRepo(storage)
+	swapper, err := integrations.NewZeroXSwapper(integrations.ZeroXConfig{
+		ApiKey:  cfg.ZeroXApiKey,
+		ChainID: cfg.ChainID,
+	})
+	if err != nil {
+		return err
+	}
+
+	chainBackend, err := ethclient.Dial(cfg.RpcURL)
+	if err != nil {
+		return err
+	}
+
+	manager := integrations.NewKeyManager(storage)
+	processor, err := services.NewTradeProcessor(manager, tradesRepo, swapper, chainBackend, logger, cfg.ChainID)
+	if err != nil {
+		return err
+	}
+
+	accountsSvc := services.NewAccountService(manager, tradesRepo, processor)
+
+	processor.Run(ctx, 3)
 
 	controller.SetupRouter(accountsSvc, httpserver.Router())
 
