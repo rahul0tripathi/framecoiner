@@ -3,7 +3,7 @@ package redis
 import (
 	"context"
 	"errors"
-	"fmt"
+	"time"
 
 	"github.com/rahul0tripathi/framecoiner/entity"
 	"github.com/redis/go-redis/v9"
@@ -19,7 +19,6 @@ type Redis struct {
 }
 
 func NewRedisDB(cfg RedisConfig) (*Redis, error) {
-	fmt.Println(cfg)
 	return &Redis{
 		client: redis.NewClient(&redis.Options{
 			Username: cfg.UserName,
@@ -41,4 +40,12 @@ func (r *Redis) Read(ctx context.Context, key string) (string, error) {
 	}
 
 	return value, nil
+}
+
+func (r *Redis) Write(ctx context.Context, key string, data string, expiration time.Duration) error {
+	if _, err := r.client.Set(ctx, key, data, expiration).Result(); err != nil {
+		return err
+	}
+
+	return nil
 }
