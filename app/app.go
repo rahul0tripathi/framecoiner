@@ -62,7 +62,7 @@ func Run() error {
 		return err
 	}
 
-	accountsSvc := services.NewAccountService(manager, tradesRepo, processor)
+	accountsSvc := services.NewAccountService(manager, tradesRepo, processor, chainBackend)
 
 	processor.Run(ctx, 3)
 

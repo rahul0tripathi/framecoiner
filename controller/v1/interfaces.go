@@ -8,7 +8,10 @@ import (
 )
 
 type AccountService interface {
-	GetTradingAccount(ctx context.Context, address common.Address) (string, error)
+	GetTradingAccount(
+		ctx context.Context,
+		address common.Address,
+	) (*entity.TradingAccount, error)
 	PlaceTradeRequest(
 		ctx context.Context,
 		address common.Address,

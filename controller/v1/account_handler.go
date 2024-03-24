@@ -27,7 +27,7 @@ func (h *Handler) MakeGetAccountHandler(svc AccountService) echo.HandlerFunc {
 			})
 		}
 
-		owner, err := svc.GetTradingAccount(c.Request().Context(), common.HexToAddress(owner))
+		account, err := svc.GetTradingAccount(c.Request().Context(), common.HexToAddress(owner))
 		switch {
 		case err == nil:
 		case errors.Is(err, entity.ErrNoAccountFound):
@@ -40,11 +40,7 @@ func (h *Handler) MakeGetAccountHandler(svc AccountService) echo.HandlerFunc {
 			})
 		}
 
-		return server.ResponseJSON(c, http.StatusOK, map[string]interface{}{
-			"data": map[string]interface{}{
-				"owner": owner,
-			},
-		})
+		return server.ResponseJSON(c, http.StatusOK, account)
 	}
 }
 
