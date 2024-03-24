@@ -115,7 +115,7 @@ func (t *TradeProcessor) trade(ctx context.Context, job *entity.TradeRequest) er
 		err = t.repo.UpdateTrade(ctx, owner, &entity.Trade{
 			Owner:   job.Owner,
 			TxnHash: "",
-			Error:   fmt.Sprintf("failed to get quote: %w", err),
+			Error:   fmt.Sprintf("failed to get quote: %s", err.Error()),
 			Expiry:  time.Now().Add(_tradeJobExpiry),
 			Request: entity.Quote{},
 		})
@@ -163,7 +163,7 @@ func (t *TradeProcessor) trade(ctx context.Context, job *entity.TradeRequest) er
 
 	return t.repo.UpdateTrade(ctx, owner, &entity.Trade{
 		Owner:   job.Owner,
-		TxnHash: fmt.Sprintf("trade: %s, flush: %s", hash.Hex(), flushHash),
+		TxnHash: hash.Hex(),
 		Error:   "",
 		Expiry:  time.Now().Add(_tradeJobExpiry),
 		Request: *quote,
